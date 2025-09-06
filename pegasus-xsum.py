@@ -77,7 +77,7 @@ val_dataset = Dataset.from_pandas(val_df)
 # ✅ Load tokenizer and model
 model_name = "google/pegasus-xsum"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForSeq2SeqLM.from_pretrained(model_name,torch_dtype=torch.float16).to(device)
+model = AutoModelForSeq2SeqLM.from_pretrained(model_name).to(device)
 model.gradient_checkpointing_enable()
 model.config.use_cache = False
 
