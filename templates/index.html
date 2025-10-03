@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Text Summarizer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: #2c3e50;
+            overflow-x: hidden;
+        }
+        
+        /* Three-section color division */
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        .visual-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 4rem 0;
+            position: relative;
+        }
+        
+        .main-interface-section {
+            background: linear-gradient(135deg, rgb(15, 237, 82) 0%, rgb(15, 237, 82) 100%);
+            padding: 4rem 0;
+            position: relative;
+        }
+        
+        .navbar {
+            background: transparent;
+            padding: 1.5rem 0;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            font-size: 1.25rem;
+            color: rgb(0, 0, 0);
+            text-decoration: none;
+        }
+        
+        .logo-circles {
+            display: flex;
+            gap: 2px;
+            margin-right: 0.75rem;
+        }
+        
+        .logo-circle {
+            width: 8px;
+            height: 8px;
+            background: rgb(0, 0, 0);
+            border-radius: 50%;
+        }
+        
+        .hamburger {
+            width: 24px;
+            height: 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+        
+        .hamburger-line {
+            width: 100%;
+            height: 2px;
+            background: rgb(15, 237, 82);
+            border-radius: 1px;
+        }
+        
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 8rem 2rem 4rem;
+            text-align: left;
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: white;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            max-width: 1500px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 400;
+            margin-bottom: 2rem;
+            max-width: 1500px;
+            line-height: 1.6;
+        }
+        
+        .cta-button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            backdrop-filter: blur(10px);
+        }
+        
+        .cta-button:hover {
+            background: white;
+            color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgb(15, 237, 82);
+            text-decoration: none;
+        }
+        
+        .images-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 2000px;
+            margin: 0 auto;
+        }
+        
+        .image-left, .image-right {
+            height: 400px;
+            width: 100%;
+            background-size: contain; 
+            background-repeat: no-repeat; 
+            background-position: center; 
+            background-color: #f0f0f0; 
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
+        .image-left img, .image-right img {
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: contain; 
+        }
+        
+        .image-left {
+            background-image: url('/static/images/cs.jpg');
+        }
+        
+        .image-right {
+            background-image: url('/static/images/NLP.jpg');
+        }
+        
+        .image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .main-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin: 2rem auto;
+            padding: 2rem;
+            max-width: 1000px;
+            display: none;
+        }
+        
+        .main-container.show {
+            display: block;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .model-selector {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .input-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .file-upload-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .file-upload-area:hover {
+            border-color: #667eea;
+            background-color: #f0f4ff;
+        }
+        
+        .file-upload-area.dragover {
+            border-color: #667eea;
+            background-color: #e8f2ff;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .result-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            display: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .spinner-border {
+            color: #667eea;
+        }
+        
+        .model-info {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 0.5rem;
+        }
+        
+        .summary-text {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border-left: 4px solid #667eea;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 10px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        .tab-content {
+            margin-top: 1rem;
+        }
+        
+        .nav-tabs .nav-link {
+            border-radius: 10px 10px 0 0;
+            border: none;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        .nav-tabs .nav-link.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .token-info {
+            background: #e8f2ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .model-option-disabled {
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .model-option-enabled {
+            color: #000;
+        }
+        
+        .warning-text {
+            color: #dc3545;
+            font-weight: 500;
+        }
+        
+        .success-text {
+            color: #28a745;
+            font-weight: 500;
+        }
+        
+        .file-info-extended {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 0.5rem;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 2rem;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Floating elements for more dynamic feel */
+        .floating-element {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .floating-element:nth-child(1) {
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .floating-element:nth-child(2) {
+            top: 60%;
+            right: 10%;
+            animation-delay: 2s;
+        }
+        
+        .floating-element:nth-child(3) {
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .floating-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .images-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .image-left, .image-right {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center w-100 px-4">
+                <a href="#" class="navbar-brand">
+                    <div class="logo-circles">
+                        <div class="logo-circle"></div>
+                        <div class="logo-circle"></div>
+                        <div class="logo-circle"></div>
+                        <div class="logo-circle"></div>
+                        <div class="logo-circle"></div>
+                        <div class="logo-circle"></div>
+                        <div class="logo-circle"></div>
+                        <div class="logo-circle"></div>
+                    </div>
+                    LegalSummarizer
+                </a>
+                <div class="hamburger">
+                    <div class="hamburger-line"></div>
+                    <div class="hamburger-line"></div>
+                    <div class="hamburger-line"></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section (Purple Gradient) -->
+    <section class="hero-section">
+        <div class="floating-element">
+            <div class="floating-circle"></div>
+        </div>
+        <div class="floating-element">
+            <div class="floating-circle"></div>
+        </div>
+        <div class="floating-element">
+            <div class="floating-circle"></div>
+        </div>
+        
+        <div class="hero-content text-center">
+            <h1 class="hero-title">Legal Text Summarizer</h1>
+            <p class="hero-subtitle">Quickly transform complex legal documents into insightful summaries using advanced NLP models. Choose from a variety of models to suit your needs, and get started in seconds. </p>
+            <a href="#" class="cta-button" onclick="showMainInterface()">Get Started</a>
+            <p class="mt-5">
+                If you want to learn more about how this website came to be, read the 
+                <a href="https://github.com/ralico123/NLP_legal" target="_blank" style="color: rgb(15, 237, 82); text-decoration: underline;">paper</a>.
+            </p>
+        </div>
+        <div class="container mt-1">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="paper-snapshot" style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); text-align: center;">
+                        <h5 class="mb-3" style="color: #2c3e50;">Thesis Paper Snapshot</h5>
+                        <div style="background: #f8f9fa; border: 2px dashed #dee2e6; border-radius: 8px; padding: 3rem; min-height: 300px; display: flex; align-items: center; justify-content: center;">
+                            <p class="text-muted mb-0">Place your thesis paper image here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Visual Section (Light Gray) -->
+    <section class="visual-section">
+        <div class="container mt-3">
+            <div class="images-container">
+                <div class="image-left">
+                    <img src="/static/images/cs.jpg" alt="Image 1">
+                </div>
+                <div class="image-right">
+                    <img src="/static/images/NLP.jpg" alt="Image 2">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Interface Section (Purple Gradient) -->
+    <section class="main-interface-section">
+        <div class="container">
+            <div class="main-container" id="mainContainer">
+                <h2 class="section-title">Your Legal Document</h2>
+
+                <!-- Model Selection -->
+                <div class="model-selector">
+                    <h5><i class="fas fa-brain"></i> Select AI Model</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <select class="form-select" id="modelSelect">
+                                <option value="led_large">LED Large Legal Summary (16k tokens)</option>
+                                <option value="led_base">LED Base Legal (16k tokens)</option>
+                                <option value="pegasus">Legal Pegasus (4k tokens)</option>
+                                <option value="pegasus_xsum">Pegasus XSum (4k tokens)</option>
+                                <option value="bart">BART Base (1k tokens)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="model-info" id="modelInfo">
+                                <strong>LED Large Legal Summary:</strong> Specialized for legal documents with large context window
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Token Information -->
+                    <div class="token-info" id="tokenInfo">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Document Tokens:</strong> <span id="tokenCount">0</span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Status:</strong> <span id="tokenStatus" class="success-text">Ready</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Methods -->
+                <div class="input-section">
+                    <ul class="nav nav-tabs" id="inputTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="text-tab" data-bs-toggle="tab" data-bs-target="#text-panel" type="button" role="tab">
+                                <i class="fas fa-keyboard"></i> Paste Text
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="file-tab" data-bs-toggle="tab" data-bs-target="#file-panel" type="button" role="tab">
+                                <i class="fas fa-file-upload"></i> Upload File
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="inputTabsContent">
+                        <!-- Text Input Panel -->
+                        <div class="tab-pane fade show active" id="text-panel" role="tabpanel">
+                            <div class="mt-3">
+                                <label for="textInput" class="form-label">Legal Document Text</label>
+                                <textarea class="form-control" id="textInput" rows="8" 
+                                    placeholder="Paste your legal document text here... (Max 12k characters for LED models)"></textarea>
+                                <div class="form-text">Character count: <span id="charCount">0</span>/12,000</div>
+                            </div>
+                        </div>
+
+                        <!-- File Upload Panel -->
+                        <div class="tab-pane fade" id="file-panel" role="tabpanel">
+                            <div class="mt-3">
+                                <div class="file-upload-area" id="fileUploadArea">
+                                    <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                                    <h5>Drop your file here or click to browse</h5>
+                                    <p class="text-muted">Supports PDF, DOC, DOCX, and TXT files (Max 16MB)</p>
+                                    <input type="file" id="fileInput" class="d-none" accept=".pdf,.doc,.docx,.txt">
+                                    <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('fileInput').click()">
+                                        Choose File
+                                    </button>
+                                </div>
+                                <div id="fileInfo" class="mt-3" style="display: none;">
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-file"></i> <span id="fileName"></span>
+                                        <button type="button" class="btn btn-sm btn-outline-danger float-end" onclick="clearFile()">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <div class="file-info-extended" id="fileTokenInfo" style="display: none;">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <strong>File Tokens:</strong> <span id="fileTokenCount">0</span>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <strong>File Status:</strong> <span id="fileTokenStatus" class="success-text">Ready</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button class="btn btn-primary btn-lg" id="summarizeBtn" onclick="summarizeDocument()">
+                            <i class="fas fa-magic"></i> Generate Summary
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Loading Indicator -->
+                <div class="loading" id="loadingIndicator">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3">Generating summary... This may take a moment.</p>
+                </div>
+
+                <!-- Results Section -->
+                <div class="result-section" id="resultSection">
+                    <h5><i class="fas fa-file-alt"></i> Summary Results</h5>
+                    <div class="summary-text" id="summaryText"></div>
+                    <div class="stats" id="summaryStats"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Model information
+        const modelInfo = {
+            'led_large': 'LED Large Legal Summary: Specialized for legal documents with large context window',
+            'led_base': 'LED Base Legal: Efficient base model for legal text summarization',
+            'pegasus': 'Legal Pegasus: Optimized for abstractive summarization of legal documents',
+            'pegasus_xsum': 'Pegasus XSum: General-purpose abstractive summarization model',
+            'bart': 'BART Base: General-purpose text summarization model'
+        };
+
+        let currentTokenCount = 0;
+        let availableModels = [];
+        let currentFileText = '';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateModelInfo();
+            setupEventListeners();
+        });
+
+        function showMainInterface() {
+            document.getElementById('mainContainer').classList.add('show');
+            document.getElementById('mainContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function setupEventListeners() {
+            // Model selection
+            document.getElementById('modelSelect').addEventListener('change', updateModelInfo);
+            
+            // Text input character count and token counting
+            document.getElementById('textInput').addEventListener('input', function() {
+                updateCharCount();
+                debounceCountTokens();
+            });
+            
+            // File upload
+            const fileInput = document.getElementById('fileInput');
+            const fileUploadArea = document.getElementById('fileUploadArea');
+            
+            fileInput.addEventListener('change', handleFileSelect);
+            
+            // Drag and drop
+            fileUploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileUploadArea.classList.add('dragover');
+            });
+            
+            fileUploadArea.addEventListener('dragleave', () => {
+                fileUploadArea.classList.remove('dragover');
+            });
+            
+            fileUploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                fileUploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    handleFileSelect();
+                }
+            });
+            
+            fileUploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+        }
+
+        // Debounce function for token counting
+        let tokenCountTimeout;
+        function debounceCountTokens() {
+            clearTimeout(tokenCountTimeout);
+            tokenCountTimeout = setTimeout(countTokens, 1000);
+        }
+
+        async function countTokens() {
+            const text = document.getElementById('textInput').value.trim();
+            if (!text) {
+                hideTokenInfo();
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/count-tokens', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    currentTokenCount = result.token_count;
+                    availableModels = result.available_models;
+                    updateTokenInfo();
+                    updateModelOptions();
+                } else {
+                    console.error('Error counting tokens:', result.error);
+                }
+            } catch (error) {
+                console.error('Error counting tokens:', error);
+            }
+        }
+
+        function updateTokenInfo() {
+            const tokenInfo = document.getElementById('tokenInfo');
+            const tokenCount = document.getElementById('tokenCount');
+            const tokenStatus = document.getElementById('tokenStatus');
+            
+            tokenCount.textContent = currentTokenCount.toLocaleString();
+            
+            if (currentTokenCount > 0) {
+                tokenInfo.style.display = 'block';
+                
+                const selectedModel = document.getElementById('modelSelect').value;
+                const selectedModelConfig = availableModels.find(m => m.key === selectedModel);
+                
+                if (selectedModelConfig) {
+                    tokenStatus.textContent = 'Ready';
+                    tokenStatus.className = 'success-text';
+                } else {
+                    tokenStatus.textContent = 'Model cannot handle this length';
+                    tokenStatus.className = 'warning-text';
+                }
+            } else {
+                hideTokenInfo();
+            }
+        }
+
+        function hideTokenInfo() {
+            document.getElementById('tokenInfo').style.display = 'none';
+            currentTokenCount = 0;
+            availableModels = [];
+        }
+
+        function updateModelOptions() {
+            const modelSelect = document.getElementById('modelSelect');
+            const options = modelSelect.options;
+            
+            for (let i = 0; i < options.length; i++) {
+                const option = options[i];
+                const modelKey = option.value;
+                const isAvailable = availableModels.some(m => m.key === modelKey);
+                
+                if (isAvailable) {
+                    option.className = 'model-option-enabled';
+                    option.disabled = false;
+                } else {
+                    option.className = 'model-option-disabled';
+                    option.disabled = true;
+                }
+            }
+        }
+
+        function updateModelInfo() {
+            const selectedModel = document.getElementById('modelSelect').value;
+            document.getElementById('modelInfo').innerHTML = `<strong>${selectedModel}:</strong> ${modelInfo[selectedModel]}`;
+            
+            // Update token status if we have token count
+            if (currentTokenCount > 0) {
+                updateTokenInfo();
+            }
+        }
+
+        function updateCharCount() {
+            const text = document.getElementById('textInput').value;
+            const charCount = document.getElementById('charCount');
+            charCount.textContent = text.length.toLocaleString();
+            
+            if (text.length > 12000) {
+                charCount.style.color = 'red';
+            } else {
+                charCount.style.color = 'inherit';
+            }
+        }
+
+        function handleFileSelect() {
+            const fileInput = document.getElementById('fileInput');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+            
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                fileName.textContent = file.name;
+                fileInfo.style.display = 'block';
+                
+                // Count tokens for uploaded file
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentFileText = e.target.result;
+                    countTokensForFile(currentFileText);
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        async function countTokensForFile(text) {
+            try {
+                const response = await fetch('/api/count-tokens', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    currentTokenCount = result.token_count;
+                    availableModels = result.available_models;
+                    updateFileTokenInfo();
+                    updateModelOptions();
+                } else {
+                    console.error('Error counting tokens:', result.error);
+                }
+            } catch (error) {
+                console.error('Error counting tokens:', error);
+            }
+        }
+
+        function updateFileTokenInfo() {
+            const fileTokenInfo = document.getElementById('fileTokenInfo');
+            const fileTokenCount = document.getElementById('fileTokenCount');
+            const fileTokenStatus = document.getElementById('fileTokenStatus');
+            
+            fileTokenCount.textContent = currentTokenCount.toLocaleString();
+            
+            if (currentTokenCount > 0) {
+                fileTokenInfo.style.display = 'block';
+                
+                const selectedModel = document.getElementById('modelSelect').value;
+                const selectedModelConfig = availableModels.find(m => m.key === selectedModel);
+                
+                if (selectedModelConfig) {
+                    fileTokenStatus.textContent = 'Ready';
+                    fileTokenStatus.className = 'success-text';
+                } else {
+                    fileTokenStatus.textContent = 'Model cannot handle this length';
+                    fileTokenStatus.className = 'warning-text';
+                }
+            } else {
+                fileTokenInfo.style.display = 'none';
+            }
+        }
+
+        function clearFile() {
+            document.getElementById('fileInput').value = '';
+            document.getElementById('fileInfo').style.display = 'none';
+            document.getElementById('fileTokenInfo').style.display = 'none';
+            currentFileText = '';
+            hideTokenInfo();
+        }
+
+        async function summarizeDocument() {
+            const model = document.getElementById('modelSelect').value;
+            const activeTab = document.querySelector('.nav-link.active').id;
+            
+            let text = '';
+            let filename = '';
+            
+            if (activeTab === 'text-tab') {
+                text = document.getElementById('textInput').value.trim();
+                if (!text) {
+                    alert('Please enter some text to summarize.');
+                    return;
+                }
+            } else {
+                const fileInput = document.getElementById('fileInput');
+                if (!fileInput.files.length) {
+                    alert('Please select a file to upload.');
+                    return;
+                }
+                
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                formData.append('model', model);
+                
+                try {
+                    showLoading(true);
+                    const response = await fetch('/api/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        displayResults(result);
+                    } else {
+                        alert('Error: ' + result.error);
+                    }
+                } catch (error) {
+                    alert('Error uploading file: ' + error.message);
+                } finally {
+                    showLoading(false);
+                }
+                return;
+            }
+            
+            // Summarize text
+            try {
+                showLoading(true);
+                const response = await fetch('/api/summarize', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        model: model
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    displayResults(result);
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error generating summary: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function displayResults(result) {
+            document.getElementById('summaryText').textContent = result.summary;
+            
+            const stats = document.getElementById('summaryStats');
+            stats.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-value">${result.original_length.toLocaleString()}</div>
+                    <div class="stat-label">Original Length</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${result.summary_length.toLocaleString()}</div>
+                    <div class="stat-label">Summary Length</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${Math.round((1 - result.summary_length / result.original_length) * 100)}%</div>
+                    <div class="stat-label">Compression</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${result.token_count ? result.token_count.toLocaleString() : 'N/A'}</div>
+                    <div class="stat-label">Tokens</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${result.model_used}</div>
+                    <div class="stat-label">Model Used</div>
+                </div>
+            `;
+            
+            document.getElementById('resultSection').style.display = 'block';
+            document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showLoading(show) {
+            document.getElementById('loadingIndicator').style.display = show ? 'block' : 'none';
+            document.getElementById('summarizeBtn').disabled = show;
+        }
+    </script>
+</body>
+</html>
