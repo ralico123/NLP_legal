@@ -18,6 +18,5 @@ datasets==2.14.5
 evaluate==0.4.1
 nltk==3.8.1
 wordfreq==3.0.3
-numpy==1.24.3
 pandas==2.0.3
 tqdm==4.66.1
