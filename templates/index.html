@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Legal Text Summarizer</title>
+    <title>LexiBrief</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
         * {
             margin: 0;
@@ -20,11 +21,37 @@
             overflow-x: hidden;
         }
         
-        /* Three-section color division */
         .hero-section {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(15, 237, 82, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(15, 237, 82, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 8s ease-in-out infinite;
         }
         
         .visual-section {
@@ -42,7 +69,7 @@
         .navbar {
             background: transparent;
             padding: 1.5rem 0;
-            position: fixed;
+            position: static;
             top: 0;
             width: 100%;
             z-index: 1000;
@@ -64,26 +91,10 @@
         }
         
         .logo-circle {
-            width: 8px;
+            width: 6px;
             height: 8px;
             background: rgb(0, 0, 0);
             border-radius: 50%;
-        }
-        
-        .hamburger {
-            width: 24px;
-            height: 18px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            cursor: pointer;
-        }
-        
-        .hamburger-line {
-            width: 100%;
-            height: 2px;
-            background: rgb(15, 237, 82);
-            border-radius: 1px;
         }
         
         .hero-content {
@@ -111,10 +122,14 @@
             max-width: 1500px;
             line-height: 1.6;
         }
+
+        .hero-link-info {
+            color: rgb(255, 255, 255);
+        }
         
-        .cta-button {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
+        .cta-button1, .cta-button2 {
+            background: #667eea;
+            color: rgb(15, 237, 82);
             border: 2px solid white;
             padding: 1rem 2rem;
             border-radius: 25px;
@@ -125,9 +140,12 @@
             text-decoration: none;
             display: inline-block;
             backdrop-filter: blur(10px);
+            position: static;
+            margin: 10px auto;
+            text-align: center;
         }
-        
-        .cta-button:hover {
+    
+        .cta-button1:hover, .cta-button2:hover {
             background: white;
             color: #667eea;
             transform: translateY(-2px);
@@ -149,56 +167,38 @@
         .image-left, .image-right {
             height: 400px;
             width: 100%;
-            background-size: contain; 
-            background-repeat: no-repeat; 
-            background-position: center; 
             background-color: #f0f0f0; 
             position: relative;
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-sizing: border-box;
         }
 
-        .image-left img, .image-right img {
-            max-height: 100%;
-            max-width: 100%;
-            object-fit: contain; 
+        .image-left img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
         }
         
-        .image-left {
-            background-image: url('/static/images/cs.jpg');
-        }
-        
-        .image-right {
-            background-image: url('/static/images/NLP.jpg');
-        }
-        
-        .image-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.2rem;
-            font-weight: 600;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        .image-right img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: left center;
         }
         
         .main-container {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-radius: 24px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.25);
             backdrop-filter: blur(10px);
             margin: 2rem auto;
-            padding: 2rem;
+            padding: 3.5rem;
             max-width: 1000px;
             display: none;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .main-container.show {
@@ -218,58 +218,156 @@
         }
         
         .model-selector {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .model-selector:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(15, 237, 82, 0.2), 0 0 0 2px rgba(15, 237, 82, 0.4);
+            border-color: rgba(15, 237, 82, 0.5);
         }
         
         .input-section {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .input-section:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(102, 126, 234, 0.2), 0 0 0 2px rgba(102, 126, 234, 0.4);
+            border-color: rgba(102, 126, 234, 0.5);
         }
         
         .file-upload-area {
-            border: 2px dashed #dee2e6;
-            border-radius: 10px;
-            padding: 2rem;
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 3rem;
             text-align: center;
-            transition: all 0.3s ease;
+            transition: all 0.4s ease;
             cursor: pointer;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .file-upload-area::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(15, 237, 82, 0.1);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+            z-index: 0;
+        }
+        
+        .file-upload-area:hover::before {
+            width: 400px;
+            height: 400px;
         }
         
         .file-upload-area:hover {
-            border-color: #667eea;
-            background-color: #f0f4ff;
+            border-color: rgb(15, 237, 82);
+            background: linear-gradient(135deg, rgba(15, 237, 82, 0.1) 0%, rgba(102, 126, 234, 0.1) 100%);
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(15, 237, 82, 0.2);
         }
         
         .file-upload-area.dragover {
-            border-color: #667eea;
-            background-color: #e8f2ff;
+            border-color: rgb(15, 237, 82);
+            background: linear-gradient(135deg, rgba(15, 237, 82, 0.15) 0%, rgba(102, 126, 234, 0.15) 100%);
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(15, 237, 82, 0.3);
         }
         
-        .btn-primary {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            border: none;
-            border-radius: 25px;
-            padding: 12px 30px;
-            font-weight: 600;
+        .file-upload-area i,
+        .file-upload-area h5,
+        .file-upload-area p,
+        .file-upload-area button {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .file-upload-area i {
             transition: all 0.3s ease;
         }
         
+        .file-upload-area:hover i {
+            transform: translateY(-10px) scale(1.1);
+            color: rgb(15, 237, 82) !important;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, rgb(15, 237, 82), #667eea);
+            border: none;
+            border-radius: 30px;
+            padding: 15px 40px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.4s ease;
+            box-shadow: 0 8px 20px rgba(15, 237, 82, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+        
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(15, 237, 82, 0.4);
+            background: linear-gradient(45deg, #667eea, rgb(15, 237, 82));
+        }
+        
+        .btn-primary:active {
+            transform: translateY(-2px) scale(1.02);
         }
         
         .result-section {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
             margin-top: 2rem;
             display: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .loading {
@@ -326,26 +424,60 @@
         }
         
         .nav-tabs .nav-link {
-            border-radius: 10px 10px 0 0;
+            border-radius: 12px 12px 0 0;
             border: none;
             color: #6c757d;
-            font-weight: 500;
+            font-weight: 600;
+            padding: 12px 24px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-tabs .nav-link:hover {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
         }
         
         .nav-tabs .nav-link.active {
-            background: #667eea;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .nav-tabs .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 3px;
+            background: rgb(15, 237, 82);
+            border-radius: 2px;
         }
         
         .form-control, .form-select {
-            border-radius: 10px;
+            border-radius: 12px;
             border: 2px solid #e9ecef;
-            padding: 12px 15px;
+            padding: 14px 18px;
+            transition: all 0.3s ease;
+            background: white;
         }
         
         .form-control:focus, .form-select:focus {
             border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.15), 0 5px 15px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .form-select {
+            cursor: pointer;
+        }
+        
+        .form-select:hover {
+            border-color: rgb(15, 237, 82);
+            box-shadow: 0 3px 10px rgba(15, 237, 82, 0.1);
         }
         
         .token-info {
@@ -357,6 +489,18 @@
             display: none;
         }
         
+        .gradient-circle {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, rgb(15, 237, 82));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: 600;
+}
         .model-option-disabled {
             color: #6c757d;
             font-style: italic;
@@ -392,7 +536,6 @@
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         
-        /* Floating elements for more dynamic feel */
         .floating-element {
             position: absolute;
             opacity: 0.1;
@@ -447,10 +590,40 @@
                 height: 300px;
             }
         }
+
+        /* Enhanced Interactive Styles */
+        .main-interface-section .model-selector {
+            background: rgba(255, 255, 255, 0.98) !important;
+            border-radius: 24px !important;
+            padding: 2.5rem !important;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12) !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            border: 2px solid rgba(255, 255, 255, 0.5) !important;
+        }
+        
+        .main-interface-section .model-selector:hover {
+            transform: translateY(-8px) !important;
+            box-shadow: 0 20px 50px rgba(15, 237, 82, 0.25) !important;
+            border-color: rgb(15, 237, 82) !important;
+        }
+
+        .main-interface-section .input-section {
+            background: rgba(255, 255, 255, 0.98) !important;
+            border-radius: 24px !important;
+            padding: 2.5rem !important;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12) !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            border: 2px solid rgba(255, 255, 255, 0.5) !important;
+        }
+        
+        .main-interface-section .input-section:hover {
+            transform: translateY(-8px) !important;
+            box-shadow: 0 20px 50px rgba(102, 126, 234, 0.25) !important;
+            border-color: #667eea !important;
+        }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
     <nav class="navbar">
         <div class="container-fluid">
             <div class="d-flex justify-content-between align-items-center w-100 px-4">
@@ -465,53 +638,152 @@
                         <div class="logo-circle"></div>
                         <div class="logo-circle"></div>
                     </div>
-                    LegalSummarizer
+                    LexiBrief
                 </a>
                 <div class="hamburger">
-                    <div class="hamburger-line"></div>
-                    <div class="hamburger-line"></div>
-                    <div class="hamburger-line"></div>
+                    <a href="#" class="cta-button1 animate__animated animate__pulse animate__infinite me-3" onclick="showMainInterface()">Get Started</a>
+                    <a href="#" class="cta-button2 animate__animated animate__pulse animate__infinite" onclick="showExample()">Try Example</a>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section (Purple Gradient) -->
-    <section class="hero-section">
-        <div class="floating-element">
-            <div class="floating-circle"></div>
-        </div>
-        <div class="floating-element">
-            <div class="floating-circle"></div>
-        </div>
-        <div class="floating-element">
-            <div class="floating-circle"></div>
-        </div>
+    <section class="hero-section position-relative">
         
-        <div class="hero-content text-center">
-            <h1 class="hero-title">Legal Text Summarizer</h1>
-            <p class="hero-subtitle">Quickly transform complex legal documents into insightful summaries using advanced NLP models. Choose from a variety of models to suit your needs, and get started in seconds. </p>
-            <a href="#" class="cta-button" onclick="showMainInterface()">Get Started</a>
-            <p class="mt-5">
-                If you want to learn more about how this website came to be, read the 
-                <a href="https://github.com/ralico123/NLP_legal" target="_blank" style="color: rgb(15, 237, 82); text-decoration: underline;">paper</a>.
-            </p>
+        <div class="floating-element">
+            <div class="floating-circle"></div>
         </div>
-        <div class="container mt-1">
-            <div class="row justify-content-center">
-                <div class="col-md-8">
-                    <div class="paper-snapshot" style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); text-align: center;">
-                        <h5 class="mb-3" style="color: #2c3e50;">Thesis Paper Snapshot</h5>
-                        <div style="background: #f8f9fa; border: 2px dashed #dee2e6; border-radius: 8px; padding: 3rem; min-height: 300px; display: flex; align-items: center; justify-content: center;">
-                            <p class="text-muted mb-0">Place your thesis paper image here</p>
-                        </div>
+        <div class="floating-element">
+            <div class="floating-circle"></div>
+        </div>
+        <div class="floating-element">
+            <div class="floating-circle"></div>
+        </div>
+
+        
+        <div class="hero-content d-flex align-items-center justify-content-between flex-wrap flex-md-nowrap text-center text-md-start" style="min-height: 60vh;">
+            <div class="flex-grow-1" style="z-index:2;">
+                <span class="badge rounded-pill bg-success mb-3 px-3 py-2" style="font-size:1rem; background:rgba(15,237,82,0.15); color:rgb(15,237,82); font-weight:600;">
+                    AI-powered Legal Summaries
+                    
+                </span>
+                <h1 class="hero-title animate__animated animate__fadeInDown">LexiBrief: Legal Summarizer</h1>
+                <p class="hero-subtitle animate__animated animate__fadeInUp">
+                    Quickly transform complex legal documents* into insightful summaries using advanced NLP models. Choose from a variety of models to suit your needs, and get started in seconds.
+                </p>
+                <p class="mt-2 hero-link-info" style="font-size:0.85rem; opacity:0.8;">
+                    <strong>* Currently optimized for English legal documents such as contracts, agreements, and case law. Working to support multilingual documents soon! </strong>
+                </p>
+                <p class="mt-5 hero-link-info">
+                    If you want to learn more about how this website came to be, read the 
+                    <a href="https://github.com/ralico123/NLP_legal/blob/main/Master_Thesis.pdf" target="_blank" style="color: rgb(15, 237, 82); text-decoration: underline;">paper.</a>
+                </p>
+                
+            </div>
+            <div class="d-none d-md-block ms-5" style="flex-shrink:0; z-index:2;">
+                <svg width="280" height="280" viewBox="0 0 280 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Background circle -->
+                    <circle cx="140" cy="140" r="130" fill="rgba(255,255,255,0.06)"/>
+                    
+                    <!-- Legal Document -->
+                    <rect x="80" y="60" width="120" height="160" rx="8" fill="#fff" stroke="rgba(118, 75, 162, 0.3)" stroke-width="2"/>
+                    <!-- Document text lines -->
+                    <line x1="95" y1="80" x2="185" y2="80" stroke="#764ba2" stroke-width="2" opacity="0.3"/>
+                    <line x1="95" y1="95" x2="185" y2="95" stroke="#764ba2" stroke-width="2" opacity="0.3"/>
+                    <line x1="95" y1="110" x2="170" y2="110" stroke="#764ba2" stroke-width="2" opacity="0.3"/>
+                    <line x1="95" y1="125" x2="185" y2="125" stroke="#764ba2" stroke-width="2" opacity="0.25"/>
+                    <line x1="95" y1="185" x2="185" y2="185" stroke="#764ba2" stroke-width="2" opacity="0.2"/>
+                    <line x1="95" y1="200" x2="160" y2="200" stroke="#764ba2" stroke-width="2" opacity="0.2"/>
+                    
+                    <!-- AI Brain in center -->
+                    <circle cx="140" cy="155" r="32" fill="rgb(15, 237, 82)" opacity="0.95"/>
+                    <!-- Brain circuits -->
+                    <circle cx="130" cy="145" r="4" fill="#fff"/>
+                    <circle cx="150" cy="145" r="4" fill="#fff"/>
+                    <circle cx="140" cy="165" r="4" fill="#fff"/>
+                    <circle cx="125" cy="160" r="3" fill="#fff" opacity="0.8"/>
+                    <circle cx="155" cy="160" r="3" fill="#fff" opacity="0.8"/>
+                    <!-- Circuit connections -->
+                    <path d="M130 145 L140 155 L150 145" stroke="#fff" stroke-width="2" fill="none" opacity="0.8"/>
+                    <path d="M125 160 L140 155 L155 160" stroke="#fff" stroke-width="2" fill="none" opacity="0.8"/>
+                    
+                    <!-- Data flow elements (dots) -->
+                    <circle cx="60" cy="140" r="3" fill="rgb(15, 237, 82)" opacity="0.6"/>
+                    <circle cx="220" cy="140" r="3" fill="rgb(15, 237, 82)" opacity="0.6"/>
+                    <circle cx="140" cy="40" r="3" fill="rgb(15, 237, 82)" opacity="0.6"/>
+                    <circle cx="140" cy="240" r="3" fill="rgb(15, 237, 82)" opacity="0.6"/>
+                    
+                    <!-- Connecting lines -->
+                    <line x1="70" y1="140" x2="108" y2="155" stroke="rgb(15, 237, 82)" stroke-width="2" opacity="0.4" stroke-dasharray="4,4"/>
+                    <line x1="210" y1="140" x2="172" y2="155" stroke="rgb(15, 237, 82)" stroke-width="2" opacity="0.4" stroke-dasharray="4,4"/>
+                    
+                    <!-- Processing arrows -->
+                    <path d="M 75 125 L 95 135" stroke="rgb(15, 237, 82)" stroke-width="2.5" opacity="0.7"/>
+                    <path d="M 95 135 L 85 138" stroke="rgb(15, 237, 82)" stroke-width="2.5" opacity="0.7"/>
+                    <path d="M 205 165 L 185 175" stroke="rgb(15, 237, 82)" stroke-width="2.5" opacity="0.7"/>
+                    <path d="M 185 175 L 195 172" stroke="rgb(15, 237, 82)" stroke-width="2.5" opacity="0.7"/>
+                </svg>
+            </div>
+        </div>
+        <section class="features-section py-5" style="background: #f8fafc;">
+            <div class="container">
+                <div class="row text-center">
+                    <div class="col-md-4 mb-4">
+                    <i class="fas fa-bolt fa-2x mb-2" style="color: rgb(15, 237, 82);"></i>
+                    <h5>Instant Summaries</h5>
+                    <p>Get concise summaries of complex legal documents in seconds.</p>
                     </div>
+                    <div class="col-md-4 mb-4">
+                    <i class="fas fa-brain fa-2x mb-2" style="color: rgb(15, 237, 82);"></i>
+                    <h5>Advanced AI Models</h5>
+                    <p>Choose from state-of-the-art NLP models tailored for legal text.</p>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                    <i class="fas fa-lock fa-2x mb-2" style="color: rgb(15, 237, 82);"></i>
+                    <h5>Privacy First</h5>
+                    <p>Your documents are processed securely and never stored.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Visual Section (Light Gray) -->
+
+
+
+
+    <section class="how-it-works mt-5 p-4 bg-light rounded">
+        <h4 class="text-center mb-4"><i class="fas fa-cogs"></i> How It Works</h4>
+        <div class="row text-center">
+            <div class="col-md-3">
+                <div class="card p-3 border-0 shadow-sm">
+                    <div class="gradient-circle">1</div>
+                    <h6>Upload</h6>
+                    <p>Upload or paste your legal document.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card p-3 border-0 shadow-sm">
+                    <div class="gradient-circle">2</div>
+                    <h6>AI Analysis</h6>
+                    <p>Our model analyzes key clauses and terms.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card p-3 border-0 shadow-sm">
+                    <div class="gradient-circle">3</div>
+                    <h6>Get Summary</h6>
+                    <p>Receive a concise summary instantly.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card p-3 border-0 shadow-sm">
+                    <div class="gradient-circle">4</div>
+                    <h6>Export & Share</h6>
+                    <p>Download or share your summary easily.</p>
+                </div>
+            </div>
+        </div>
+    </section>
     <section class="visual-section">
         <div class="container mt-3">
             <div class="images-container">
@@ -525,33 +797,31 @@
         </div>
     </section>
 
-    <!-- Main Interface Section (Purple Gradient) -->
     <section class="main-interface-section">
         <div class="container">
             <div class="main-container" id="mainContainer">
                 <h2 class="section-title">Your Legal Document</h2>
 
-                <!-- Model Selection -->
                 <div class="model-selector">
                     <h5><i class="fas fa-brain"></i> Select AI Model</h5>
                     <div class="row">
                         <div class="col-md-6">
                             <select class="form-select" id="modelSelect">
-                                <option value="led_large">LED Large Legal Summary (16k tokens)</option>
-                                <option value="led_base">LED Base Legal (16k tokens)</option>
+                                <option value="led_large">Legal LED large (16k tokens)</option>
+                                <option value="led_base">Legal LED base (16k tokens)</option>
                                 <option value="pegasus">Legal Pegasus (4k tokens)</option>
                                 <option value="pegasus_xsum">Pegasus XSum (4k tokens)</option>
-                                <option value="bart">BART Base (1k tokens)</option>
+                                <option value="bart">BART base (1k tokens)</option>
                             </select>
                         </div>
+
                         <div class="col-md-6">
                             <div class="model-info" id="modelInfo">
-                                <strong>LED Large Legal Summary:</strong> Specialized for legal documents with large context window
+                                <strong>Legal LED Large:</strong> Specialized for legal documents with large context window
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Token Information -->
                     <div class="token-info" id="tokenInfo">
                         <div class="row">
                             <div class="col-md-6">
@@ -564,7 +834,6 @@
                     </div>
                 </div>
 
-                <!-- Input Methods -->
                 <div class="input-section">
                     <ul class="nav nav-tabs" id="inputTabs" role="tablist">
                         <li class="nav-item" role="presentation">
@@ -580,17 +849,16 @@
                     </ul>
 
                     <div class="tab-content" id="inputTabsContent">
-                        <!-- Text Input Panel -->
                         <div class="tab-pane fade show active" id="text-panel" role="tabpanel">
                             <div class="mt-3">
                                 <label for="textInput" class="form-label">Legal Document Text</label>
                                 <textarea class="form-control" id="textInput" rows="8" 
-                                    placeholder="Paste your legal document text here... (Max 12k characters for LED models)"></textarea>
-                                <div class="form-text">Character count: <span id="charCount">0</span>/12,000</div>
+                                    placeholder="Paste your legal document text here... (Max 16k tokens for LED models.
+16k tokens = 12k words = 64k characters)"></textarea>
+                                <div class="form-text">Character count: <span id="charCount">0</span>/64,000</div>
                             </div>
                         </div>
 
-                        <!-- File Upload Panel -->
                         <div class="tab-pane fade" id="file-panel" role="tabpanel">
                             <div class="mt-3">
                                 <div class="file-upload-area" id="fileUploadArea">
@@ -631,7 +899,6 @@
                     </div>
                 </div>
 
-                <!-- Loading Indicator -->
                 <div class="loading" id="loadingIndicator">
                     <div class="spinner-border" role="status">
                         <span class="visually-hidden">Loading...</span>
@@ -639,25 +906,49 @@
                     <p class="mt-3">Generating summary... This may take a moment.</p>
                 </div>
 
-                <!-- Results Section -->
+                <div class="progress-section mt-4 d-none" id="progressSection">
+                    <h6 class="mb-2"><i class="fas fa-spinner"></i> Processing Progress</h6>
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" id="progressBar"
+                        role="progressbar" style="width: 0%">0%</div>
+                    </div>
+                    <p class="mt-2 text-center" id="progressStage">Initializing...</p>
+                </div>
+
                 <div class="result-section" id="resultSection">
                     <h5><i class="fas fa-file-alt"></i> Summary Results</h5>
                     <div class="summary-text" id="summaryText"></div>
                     <div class="stats" id="summaryStats"></div>
                 </div>
+                <div class="results-actions mt-4 d-none" id="resultsActions">
+                    <h6><i class="fas fa-tools"></i> Actions</h6>
+                    <div class="d-flex flex-wrap gap-3 mt-2">
+                        <button class="btn btn-outline-primary" id="copySummary"><i class="fas fa-copy"></i> Copy to Clipboard</button>
+                        <button class="btn btn-outline-secondary" id="downloadTxt"><i class="fas fa-file-alt"></i> Download TXT</button>
+                        <button class="btn btn-outline-danger" id="downloadPdf"><i class="fas fa-file-pdf"></i> Download PDF</button>
+                        <button class="btn btn-outline-success" id="compareView"><i class="fas fa-columns"></i> Compare View</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="limitations mt-5 p-4 border border-danger border-3 rounded bg-white">
+            <h4 class="text-danger text-center mb-4"><i class="fas fa-exclamation-triangle"></i> Disclaimer</h4>
+            <div class="text-center">
+                <strong>Not a substitute for professional legal advice. Summaries may omit critical details. Always consult a qualified attorney for legal matters.</strong>    
             </div>
         </div>
     </section>
+    
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Model information
         const modelInfo = {
-            'led_large': 'LED Large Legal Summary: Specialized for legal documents with large context window',
-            'led_base': 'LED Base Legal: Efficient base model for legal text summarization',
+            'led_large': 'Legal LED large: Specialized for legal documents with large context window',
+            'led_base': 'Legal LED base: Efficient base model for legal text summarization',
             'pegasus': 'Legal Pegasus: Optimized for abstractive summarization of legal documents',
             'pegasus_xsum': 'Pegasus XSum: General-purpose abstractive summarization model',
-            'bart': 'BART Base: General-purpose text summarization model'
+            'bart': 'BART base: General-purpose text summarization model'
         };
 
         let currentTokenCount = 0;
@@ -673,6 +964,14 @@
         function showMainInterface() {
             document.getElementById('mainContainer').classList.add('show');
             document.getElementById('mainContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showExample() {
+            const exampleText = `This Agreement is made and entered into as of the Effective Date by and between Party A and Party B. WHEREAS, Party A is engaged in the business of providing certain services, and Party B desires to engage Party A to provide such services under the terms and conditions set forth herein. NOW, THEREFORE, in consideration of the mutual covenants and promises contained herein, the parties agree as follows: 1. Services. Party A agrees to provide the services described in Exhibit A attached hereto (the "Services"). 2. Compensation. In consideration for the Services, Party B shall pay Party A the fees set forth in Exhibit B attached hereto. 3. Term and Termination. This Agreement shall commence on the Effective Date and continue for a period of one year unless terminated earlier in accordance with this Section 3. Either party may terminate this Agreement upon thirty (30) days written notice to the other party. 4. Confidentiality. Each party agrees to maintain the confidentiality of all confidential information disclosed by the other party during the term of this Agreement. 5. Governing Law. This Agreement shall be governed by and construed in accordance with the laws of the State of [State], without regard to its conflict of law principles. IN WITNESS WHEREOF, the parties have executed this Agreement as of the Effective Date.`;
+            document.getElementById('textInput').value = exampleText;
+            updateCharCount();
+            countTokens();
+            showMainInterface();
         }
 
         function setupEventListeners() {
@@ -1013,6 +1312,85 @@
             document.getElementById('loadingIndicator').style.display = show ? 'block' : 'none';
             document.getElementById('summarizeBtn').disabled = show;
         }
+        
+        // Example Document Loader
+        document.getElementById('tryExampleBtn').addEventListener('click', () => {
+        const exampleText = `This Non-Disclosure Agreement (NDA) is entered into between Company A and Company B...`;
+        document.getElementById('textInput').value = exampleText;
+        document.getElementById('exampleSuccess').classList.remove('d-none');
+        setTimeout(() => document.getElementById('exampleSuccess').classList.add('d-none'), 3000);
+        updateCharCount();
+        });
+
+// Progress Simulation
+        function simulateProgress() {
+        const progressSection = document.getElementById('progressSection');
+        const progressBar = document.getElementById('progressBar');
+        const progressStage = document.getElementById('progressStage');
+        progressSection.classList.remove('d-none');
+  
+        const stages = ['Initializing', 'Processing', 'Generating', 'Finalizing'];
+        let progress = 0;
+        let stageIndex = 0;
+
+            const interval = setInterval(() => {
+            progress += 10;
+            if (progress > 100) {
+            clearInterval(interval);
+            progressSection.classList.add('d-none');
+            document.getElementById('resultsActions').classList.remove('d-none');
+            return;
+    }
+
+            if (progress % 25 === 0 && stageIndex < stages.length) {
+            progressStage.textContent = stages[stageIndex++];
+    }
+            progressBar.style.width = `${progress}%`;
+            progressBar.textContent = `${progress}%`;
+        }, 300);
+}
+
+// Integrate with summarizeDocument
+        const originalSummarize = summarizeDocument;
+        summarizeDocument = async function() {
+        simulateProgress();
+        await originalSummarize();
+};
+
+// Results Actions
+    document.getElementById('copySummary').addEventListener('click', () => {
+    const text = document.getElementById('summaryText').textContent;
+    navigator.clipboard.writeText(text);
+    const btn = document.getElementById('copySummary');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.innerHTML = '<i class="fas fa-copy"></i> Copy to Clipboard', 2000);
+});
+
+    document.getElementById('downloadTxt').addEventListener('click', () => {
+    const blob = new Blob([document.getElementById('summaryText').textContent], { type: 'text/plain' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'summary.txt';
+    link.click();
+});
+
+    document.getElementById('downloadPdf').addEventListener('click', () => {
+    window.print();
+});
+
+    document.getElementById('compareView').addEventListener('click', () => {
+    const original = document.getElementById('textInput').value;
+    const summary = document.getElementById('summaryText').textContent;
+    const newWindow = window.open('', '_blank');
+    newWindow.document.write(`
+        <h2>Original Document</h2><pre>${original}</pre>
+        <h2>Summary</h2><pre>${summary}</pre>
+`);
+});
+
     </script>
 </body>
 </html>
+
+
+

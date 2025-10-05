@@ -431,4 +431,4 @@ if __name__ == '__main__':
         print("   To enable real models, set DEMO_MODE = False in app.py")
     print("📁 Static files will be served from: /static/")
     print("📸 Place your JPG images in: static/images/")
-    app.run(debug=True, host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=5000)
