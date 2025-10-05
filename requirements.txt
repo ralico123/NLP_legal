@@ -12,7 +12,7 @@ werkzeug>=3.0.0
 roman==4.2
 symspellpy==6.7.7
 textstat==0.7.3
-rouge-score==0.1.2
+rouge-score==0.0.2
 bert-score==0.3.13
 datasets==2.14.5
 evaluate==0.4.1
