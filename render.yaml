@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: lexibrief
+    env: python
+    plan: free
+    buildCommand: |
+      pip install --upgrade pip setuptools wheel
+      pip install --upgrade build
+      pip install -r requirements.txt
+    startCommand: gunicorn app:app
