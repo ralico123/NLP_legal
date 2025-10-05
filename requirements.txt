@@ -1,4 +1,7 @@
-flask==2.3.3
+flask==3.0.3
+gunicorn==23.0.0
+setuptools>=65.5.0
+wheel>=0.38.0
 flask-cors==4.0.0
 torch==2.5.0
 transformers==4.39.3
