@@ -307,3 +307,43 @@ print(f"F1: {F1.mean().item():.4f}")
 
 print("\n💡 BLANC Help (Mean):")
 print(f"BLANC Score: {blanc_mean:.4f}")
+
+# ===== SAVE MODEL + TOKENIZER =====
+from pathlib import Path
+
+save_dir = Path("saved_models") / f"{base_name}_in{max_input_length}_out{max_target_length}"
+save_dir.mkdir(parents=True, exist_ok=True)
+
+model.save_pretrained(save_dir)
+tokenizer.save_pretrained(save_dir)
+
+print(f"\n💾 Model + tokenizer saved to: {save_dir}")
+# ===== SAVE METRICS (SIMPLE CSV) =====
+import csv
+from datetime import datetime
+
+metrics_csv = f"metrics_{base_name}_in{max_input_length}_out{max_target_length}.csv"
+
+metrics_dict = {
+    "timestamp": datetime.now().isoformat(timespec="seconds"),
+    "model_name": model_name,
+    "input_len": max_input_length,
+    "output_len": max_target_length,
+    "rouge1": np.mean(r1),
+    "rouge2": np.mean(r2),
+    "rougeL": np.mean(rl),
+    "bert_f1": F1.mean().item(),
+    "blanc": blanc_mean,
+    "flesch_kincaid": np.nanmean(fk_scores),
+    "dale_chall": np.nanmean(dc_scores),
+    "failed_readability": readability_failures,
+}
+
+with open(metrics_csv, "w", newline="") as f:
+    writer = csv.writer(f)
+    writer.writerow(["metric", "score"])
+    for k, v in metrics_dict.items():
+        writer.writerow([k, v])
+
+print(f"📊 Metrics saved to: {metrics_csv}")
+
