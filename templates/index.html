@@ -809,9 +809,8 @@
                         <div class="col-md-6">
                             <select class="form-select" id="modelSelect">
                                 <option value="led_large">Legal LED large (16k tokens)</option>
-                                <option value="led_base">Legal LED base (16k tokens)</option>
-                                <option value="pegasus">Legal Pegasus (4k tokens)</option>
-                                <option value="pegasus_xsum">Pegasus XSum (4k tokens)</option>
+                                <option value="led_base">Legal LED base (8k tokens)</option>
+                                <option value="longt5_base">Long T5 base (4k tokens)</option>
                                 <option value="bart">BART base (1k tokens)</option>
                             </select>
                         </div>
@@ -854,7 +853,7 @@
                             <div class="mt-3">
                                 <label for="textInput" class="form-label">Legal Document Text</label>
                                 <textarea class="form-control" id="textInput" rows="8" 
-                                    placeholder="Paste your legal document text here... (Max 16k tokens for LED models.
+                                    placeholder="Paste your legal document text here... (Max 16k tokens for LED large model.
 16k tokens = 12k words = 64k characters)"></textarea>
                                 <div class="form-text">Character count: <span id="charCount">0</span>/64,000</div>
                             </div>
