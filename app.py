@@ -43,37 +43,30 @@ MODEL_CONFIGS = {
     'bart': {
         'name': 'facebook/bart-base',
         'max_input_length': 1024,
-        'max_target_length': 128,
+        'max_target_length': 256,
         'max_tokens': 1024,
         'description': 'BART Base (1024 tokens)'
     },
     'led_base': {
         'name': 'nsi319/legal-led-base-16384',
-        'max_input_length': 16384,
-        'max_target_length': 128,
-        'max_tokens': 16384,
-        'description': 'LED Base Legal (16k tokens)'
+        'max_input_length': 8192,
+        'max_target_length': 256,
+        'max_tokens': 8192,
+        'description': 'LED Base Legal (8192 tokens)'
     },
     'led_large': {
         'name': '0-hero/led-large-legal-summary',
         'max_input_length': 16384,
-        'max_target_length': 128,
+        'max_target_length': 256,
         'max_tokens': 16384,
-        'description': 'LED Large Legal Summary (16k tokens)'
+        'description': 'LED Large Legal Summary (16384 tokens)'
     },
-    'pegasus': {
-        'name': 'nsi319/legal-pegasus',
+    'longt5_base': {
+        'name': 'google/long-t5-tglobal-base',
         'max_input_length': 4096,
-        'max_target_length': 128,
+        'max_target_length': 256,
         'max_tokens': 4096,
-        'description': 'Legal Pegasus (4k tokens)'
-    },
-    'pegasus_xsum': {
-        'name': 'google/pegasus-xsum',
-        'max_input_length': 4096,
-        'max_target_length': 128,
-        'max_tokens': 4096,
-        'description': 'Pegasus XSum (4k tokens)'
+        'description': 'Pegasus XSum (4096 tokens)'
     }
 }
 
