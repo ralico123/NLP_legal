@@ -4,12 +4,11 @@ A web application that uses advanced NLP models to summarize complex legal docum
 
 ## Features
 
-- **Multiple AI Models**: Choose from 5 different specialized models:
-  - LED Large Legal Summary 
-  - LED Base Legal
-  - Legal Pegasus
-  - Pegasus XSum
-  - BART Base
+- **Multiple AI Models**: Choose from 4 different specialized models:
+  - Legal LED large
+  - Legal LED base
+  - Long T5 base
+  - BART base
   
 
 - **Flexible Input Methods**:
@@ -67,25 +66,25 @@ A web application that uses advanced NLP models to summarize complex legal docum
 
 ## Models
 
-### LED Large Legal Summary (Recommended)
+### Legal LED large (Recommended)
 - **Model**: `0-hero/led-large-legal-summary`
 - **Best for**: Complex legal documents with large context
 - **Context Window**: 16,384 tokens
 
-### LED Base Legal
+### Legal LED base
 - **Model**: `nsi319/legal-led-base-16384`
 - **Best for**: General legal document summarization
 - **Context Window**: 16,384 tokens
 
-### Legal Pegasus
-- **Model**: `nsi319/legal-pegasus`
-- **Best for**: Abstractive summarization of legal texts
-- **Context Window**: 512 tokens
+### Long T5 base
+- **Model**: `google/long-t5-tglobal-base`
+- **Best for**: Abstractive summarization for tasks in NLP among others
+- **Context Window**: 4096 tokens
 
-### BART Base
+### BART base
 - **Model**: `facebook/bart-base`
 - **Best for**: General text summarization
-- **Context Window**: 512 tokens
+- **Context Window**: 1024
 
 ## API Endpoints
 
