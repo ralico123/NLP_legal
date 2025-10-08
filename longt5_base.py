@@ -1,3 +1,18 @@
+# ✅ INSTALL DEPENDENCIES
+import time
+start = time.time()
+!rm -rf ~/.cache/huggingface/transformers
+!rm -rf ~/.cache/torch
+!pip uninstall -y transformers torch accelerate
+!pip install torch==2.2.2 torchvision==0.17.2 torchaudio==2.2.2
+!pip install transformers==4.39.3 accelerate==0.28.0 -q
+!pip install roman datasets textstat evaluate rouge-score bert_score --quiet
+!pip install git+https://github.com/PrimerAI/blanc.git --quiet
+!pip install symspellpy nltk wordfreq
+end = time.time()
+time = end-start
+print(f"\n All dependencies installed in {time:.2f} seconds!")
+
 import torch
 import numpy as np
 import textstat 
@@ -294,3 +309,14 @@ print(f"F1: {F1.mean().item():.4f}")
 
 print("\n💡 BLANC Help (Mean):")
 print(f"BLANC Score: {blanc_mean:.4f}")
+
+# ===== SAVE MODEL + TOKENIZER =====
+from pathlib import Path
+
+save_dir = Path("saved_models") / f"{base_name}_in{max_input_length}_out{max_target_length}"
+save_dir.mkdir(parents=True, exist_ok=True)
+
+model.save_pretrained(save_dir)
+tokenizer.save_pretrained(save_dir)
+
+print(f"\n💾 Model + tokenizer saved to: {save_dir}")
