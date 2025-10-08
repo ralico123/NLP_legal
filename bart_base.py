@@ -4,7 +4,6 @@ start = time.time()
 !rm -rf ~/.cache/huggingface/transformers
 !rm -rf ~/.cache/torch
 !pip uninstall -y transformers torch accelerate
-# !pip install torch==2.2.2 torchvision==0.17.2 torchaudio==2.2.2
 !pip install torch==2.2.1 transformers==4.39.3 accelerate==0.28.0 -q
 !pip install roman datasets textstat evaluate rouge-score bert_score --quiet
 !pip install git+https://github.com/PrimerAI/blanc.git --quiet
@@ -108,14 +107,14 @@ val_dataset = val_dataset.map(preprocess_function, batched=True, remove_columns=
 
 # ✅ Dataloaders
 data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, model=model)
-train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True, collate_fn=data_collator)
+train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True, collate_fn=data_collator) # change batch size according to available compute power
 val_loader = DataLoader(val_dataset, batch_size=1, collate_fn=data_collator)
 
 # ✅ Optimizer
 optimizer = AdamW(model.parameters(), lr=5e-5)
 
 # ✅ Training loop
-epochs = 1
+epochs = 3
 model.train()
 
 for epoch in range(epochs):
