@@ -111,7 +111,7 @@ val_loader = DataLoader(val_dataset, batch_size=1, collate_fn=data_collator)
 optimizer = AdamW(model.parameters(), lr=5e-5)
 
 # ✅ Training loop
-epochs = 1
+epochs = 3
 model.train()
 
 for epoch in range(epochs):
@@ -140,7 +140,7 @@ model.eval()
 
 from tqdm import tqdm
 
-def generate_in_batches(texts, batch_size=2, limit=300):
+def generate_in_batches(texts, batch_size=1, limit=300):
     preds = []
     texts = texts[:limit]
     for i in tqdm(range(0, len(texts), batch_size), desc="🔄 Generating summaries"):
@@ -181,6 +181,8 @@ import roman
 import string
 from symspellpy.symspellpy import SymSpell, Verbosity
 import pkg_resources
+import nltk
+nltk.download("punkt_tab")
 
 # Initialize SymSpell
 sym_spell = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
@@ -313,31 +315,3 @@ model.save_pretrained(save_dir)
 tokenizer.save_pretrained(save_dir)
 
 print(f"\n💾 Model + tokenizer saved to: {save_dir}")
-# ===== SAVE METRICS (SIMPLE CSV) =====
-import csv
-from datetime import datetime
-
-metrics_csv = f"metrics_{base_name}_in{max_input_length}_out{max_target_length}.csv"
-
-metrics_dict = {
-    "timestamp": datetime.now().isoformat(timespec="seconds"),
-    "model_name": model_name,
-    "input_len": max_input_length,
-    "output_len": max_target_length,
-    "rouge1": np.mean(r1),
-    "rouge2": np.mean(r2),
-    "rougeL": np.mean(rl),
-    "bert_f1": F1.mean().item(),
-    "blanc": blanc_mean,
-    "flesch_kincaid": np.nanmean(fk_scores),
-    "dale_chall": np.nanmean(dc_scores),
-    "failed_readability": readability_failures,
-}
-
-with open(metrics_csv, "w", newline="") as f:
-    writer = csv.writer(f)
-    writer.writerow(["metric", "score"])
-    for k, v in metrics_dict.items():
-        writer.writerow([k, v])
-
-print(f"📊 Metrics saved to: {metrics_csv}")
