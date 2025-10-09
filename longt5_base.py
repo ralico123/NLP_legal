@@ -313,7 +313,7 @@ print(f"BLANC Score: {blanc_mean:.4f}")
 # ===== SAVE MODEL + TOKENIZER =====
 from pathlib import Path
 
-save_dir = Path("saved_models") / f"{base_name}_in{max_input_length}_out{max_target_length}"
+save_dir = Path("saved_models") / f"{model_name}_in{max_input_length}_out{max_target_length}"
 save_dir.mkdir(parents=True, exist_ok=True)
 
 model.save_pretrained(save_dir)
