@@ -181,7 +181,7 @@ import roman
 import string
 from symspellpy.symspellpy import SymSpell, Verbosity
 import pkg_resources
-import ntlk
+import nltk
 nltk.download("punkt_tab")
 
 # Initialize SymSpell
