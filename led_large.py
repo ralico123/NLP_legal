@@ -111,6 +111,32 @@ val_loader = DataLoader(val_dataset, batch_size=1, collate_fn=data_collator)
 optimizer = AdamW(model.parameters(), lr=5e-5)
 
 # ✅ Training loop
+# epochs = 3
+# model.train()
+
+# for epoch in range(epochs):
+#     loop = tqdm(train_loader, leave=True)
+#     total_loss = 0
+
+#     for batch in loop:
+#         batch = {k: v.to(device) for k, v in batch.items()}
+#         outputs = model(**batch)
+#         loss = outputs.loss
+#         loss.backward()
+#         optimizer.step()
+#         optimizer.zero_grad()
+
+#         total_loss += loss.item()
+#         loop.set_description(f"Epoch {epoch + 1}")
+#         loop.set_postfix(loss=loss.item())
+
+#     avg_loss = total_loss / len(train_loader)
+#     print(f"Epoch {epoch + 1} finished. Avg loss: {avg_loss:.4f}")
+from torch.cuda.amp import autocast, GradScaler
+
+# ✅ Mixed precision scaler
+scaler = GradScaler()
+
 epochs = 3
 model.train()
 
@@ -120,10 +146,16 @@ for epoch in range(epochs):
 
     for batch in loop:
         batch = {k: v.to(device) for k, v in batch.items()}
-        outputs = model(**batch)
-        loss = outputs.loss
-        loss.backward()
-        optimizer.step()
+        
+        # Forward + backward with FP16 autocast
+        with autocast(dtype=torch.float16):
+            outputs = model(**batch)
+            loss = outputs.loss
+
+        # Scale loss to prevent underflow
+        scaler.scale(loss).backward()
+        scaler.step(optimizer)
+        scaler.update()
         optimizer.zero_grad()
 
         total_loss += loss.item()
@@ -131,7 +163,7 @@ for epoch in range(epochs):
         loop.set_postfix(loss=loss.item())
 
     avg_loss = total_loss / len(train_loader)
-    print(f"Epoch {epoch + 1} finished. Avg loss: {avg_loss:.4f}")
+    print(f"✅ Epoch {epoch + 1} finished. Avg loss: {avg_loss:.4f}")
 
 
 
