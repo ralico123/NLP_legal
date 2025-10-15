@@ -43,7 +43,7 @@ A web application that uses advanced NLP models to summarize complex legal docum
    ```
 
 4. **Open your browser** and go to `http://localhost:8080`
-5. Now also available on https://www.lexibrieef.live
+5. Now also available on https://www.lexibrief.live
 
 ## Usage
 
