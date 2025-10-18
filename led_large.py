@@ -125,7 +125,7 @@ train_loader = DataLoader(
 )
 val_loader = DataLoader(
     val_dataset, 
-    batch_size=1,  
+    batch_size=32,  
     collate_fn=data_collator,
     pin_memory=True,  # ADDED: faster data transfer
     num_workers=6,  # ADDED: parallel data loading
@@ -139,7 +139,7 @@ optimizer = AdamW(model.parameters(), lr=5e-5)
 scaler = torch.cuda.amp.GradScaler(init_scale=2.**10, growth_interval=2000)
 
 # ✅ Training loop - OPTIMIZED: mixed precision, gradient accumulation
-epochs = 0
+epochs = 3
 gradient_accumulation_steps = 4  # ADDED: accumulate gradients
 model.train()
 
@@ -192,7 +192,7 @@ model.eval()  # Set to eval mode
 torch.cuda.empty_cache()  # Clear memory fragmentation
 from tqdm import tqdm
 
-def generate_in_batches(texts, batch_size=32, limit=300):
+def generate_in_batches(texts, batch_size=16, limit=300):
     preds = []
     texts = texts[:limit]
     
