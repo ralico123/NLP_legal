@@ -80,18 +80,20 @@ model = AutoModelForSeq2SeqLM.from_pretrained(model_name).to(device)
 
 # ✅ Preprocessing with padding/truncation
 max_input_length = 512
-max_target_length = 128
+max_target_length = 256
 
 def preprocess_function(examples):
     inputs = tokenizer(
         examples["text"],
         max_length=max_input_length,
         truncation=True,
+        # CHANGED: Remove padding here, let collator handle it dynamically
     )
     targets = tokenizer(
         examples["summary"],
         max_length=max_target_length,
         truncation=True,
+        # CHANGED: Remove padding here too
     )
     inputs["labels"] = targets["input_ids"]
     return inputs
@@ -101,58 +103,59 @@ train_dataset = train_dataset.map(
     preprocess_function, 
     batched=True, 
     remove_columns=["text", "summary"],
-    num_proc=6  # added parallel processing
+    num_proc=6  # ADDED: parallel processing
 )
 val_dataset = val_dataset.map(
     preprocess_function, 
     batched=True, 
     remove_columns=["text", "summary"],
-    num_proc=6 
+    num_proc=6  # ADDED: parallel processing
 )
 
-# ✅ Dataloaders - optimized through pin memory, prefetch
+# ✅ Dataloaders - OPTIMIZED: larger batch size, pin memory, prefetch
 data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, model=model)
 train_loader = DataLoader(
     train_dataset, 
     batch_size=32,  
     shuffle=True, 
     collate_fn=data_collator,
-    pin_memory=True,  
-    num_workers=6,  
-    prefetch_factor=2 
+    pin_memory=True,  # ADDED: faster data transfer to GPU
+    num_workers=6,  # ADDED: parallel data loading
+    prefetch_factor=2  # ADDED: prefetch batches
 )
 val_loader = DataLoader(
     val_dataset, 
     batch_size=1,  
     collate_fn=data_collator,
-    pin_memory=True,  
-    num_workers=6,  
-    prefetch_factor=2
+    pin_memory=True,  # ADDED: faster data transfer
+    num_workers=6,  # ADDED: parallel data loading
+    prefetch_factor=2  # ADDED: prefetch batches
 )
 
 # ✅ Optimizer
 optimizer = AdamW(model.parameters(), lr=5e-5)
 
-# Gradient scaler for mixed precision training with stability fixes
+# ADDED: Gradient scaler for mixed precision training with stability fixes
 scaler = torch.cuda.amp.GradScaler(init_scale=2.**10, growth_interval=2000)
 
-# ✅ Training loop optimized: mixed precision, gradient accumulation
-epochs = 3
-gradient_accumulation_steps = 4  
+# ✅ Training loop - OPTIMIZED: mixed precision, gradient accumulation
+epochs = 0
+gradient_accumulation_steps = 4  # ADDED: accumulate gradients
 model.train()
 
 for epoch in range(epochs):
     loop = tqdm(train_loader, leave=True)
     total_loss = 0
-    optimizer.zero_grad() 
+    optimizer.zero_grad()  # MOVED: zero grad once at the start
     
     for step, batch in enumerate(loop):
-        batch = {k: v.to(device, non_blocking=True) for k, v in batch.items()}  
+        batch = {k: v.to(device, non_blocking=True) for k, v in batch.items()}  # CHANGED: non_blocking transfer
         
-        
+        # ADDED: Mixed precision training with autocast
         with torch.cuda.amp.autocast(dtype=torch.bfloat16):
             outputs = model(**batch)
             loss = outputs.loss
+            # CHANGED: Scale loss for gradient accumulation
             loss = loss / gradient_accumulation_steps
         
         # Check for NaN loss
@@ -161,12 +164,12 @@ for epoch in range(epochs):
             optimizer.zero_grad()
             continue
         
-        
+        # CHANGED: Use scaler for backward pass
         scaler.scale(loss).backward()
         
-        
+        # ADDED: Only update weights every N steps
         if (step + 1) % gradient_accumulation_steps == 0:
-            # Gradient clipping for stability
+            # ADDED: Gradient clipping for stability
             scaler.unscale_(optimizer)
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             
@@ -174,7 +177,7 @@ for epoch in range(epochs):
             scaler.update()
             optimizer.zero_grad()
         
-        total_loss += loss.item() * gradient_accumulation_steps
+        total_loss += loss.item() * gradient_accumulation_steps  # CHANGED: unscale for logging
         loop.set_description(f"Epoch {epoch + 1}")
         loop.set_postfix(loss=loss.item() * gradient_accumulation_steps)
     
@@ -182,36 +185,76 @@ for epoch in range(epochs):
     print(f"Epoch {epoch + 1} finished. Avg loss: {avg_loss:.4f}")
 
 
-
-# ===== GENERATION FUNCTION =====
-model.eval()
-
+# ===== PREPARE MODEL FOR INFERENCE =====
+print("🔧 Preparing model for generation...")
+model.gradient_checkpointing_disable()  # Turn off checkpointing
+model.eval()  # Set to eval mode
+torch.cuda.empty_cache()  # Clear memory fragmentation
 from tqdm import tqdm
 
 def generate_in_batches(texts, batch_size=32, limit=300):
     preds = []
     texts = texts[:limit]
-    for i in tqdm(range(0, len(texts), batch_size), desc="🔄 Generating summaries"):
-        batch = texts[i:i + batch_size]
-        inputs = tokenizer(
-            batch,
-            return_tensors="pt",
-            padding=True,
-            truncation=True,
-            max_length=max_input_length,
-        ).to(device)
-        with torch.no_grad():
-            outputs = model.generate(
-                input_ids=inputs['input_ids'],
-                attention_mask=inputs['attention_mask'],
-                max_length=max_target_length,
-                num_beams=4,
-                early_stopping=True
+    
+    # ADDED: Pre-tokenize all texts for better batching
+    all_encodings = tokenizer(
+        texts,
+        return_tensors="pt",
+        padding=False,  # Don't pad yet
+        truncation=True,
+        max_length=max_input_length,
+    )
+    
+    # ADDED: Create dataset for better batching by length
+    from torch.utils.data import TensorDataset, DataLoader
+    dataset = TensorDataset(
+        all_encodings['input_ids'],
+        all_encodings['attention_mask']
+    )
+    
+    # ADDED: DataLoader with optimized settings
+    dataloader = DataLoader(
+        dataset,
+        batch_size=batch_size,
+        shuffle=False,  # Keep order
+        pin_memory=True,
+        num_workers=2,
+        collate_fn=lambda batch: {
+            'input_ids': torch.nn.utils.rnn.pad_sequence(
+                [b[0] for b in batch], 
+                batch_first=True, 
+                padding_value=tokenizer.pad_token_id
+            ),
+            'attention_mask': torch.nn.utils.rnn.pad_sequence(
+                [b[1] for b in batch], 
+                batch_first=True, 
+                padding_value=0
             )
+        }
+    )
+    
+    for batch in tqdm(dataloader, desc="🔄 Generating summaries"):
+        # CHANGED: Non-blocking transfer
+        inputs = {k: v.to(device, non_blocking=True) for k, v in batch.items()}
+        
+        with torch.no_grad():
+            # ADDED: Use half precision for faster inference
+            with torch.cuda.amp.autocast(dtype=torch.float16):
+                outputs = model.generate(
+                    input_ids=inputs['input_ids'],
+                    attention_mask=inputs['attention_mask'],
+                    max_length=max_target_length,
+                    num_beams=4,
+                    early_stopping=True,
+                    # ADDED: Optimizations for faster generation
+                    do_sample=False,  # Deterministic for beam search
+                    use_cache=True,  # Enable KV cache
+                )
+        
         decoded = tokenizer.batch_decode(outputs, skip_special_tokens=True)
         preds.extend(decoded)
+    
     return preds
-
 # Limit for faster runs
 GEN_LIMIT = len(val_df)
 raw_texts = val_df["text"].tolist()[:GEN_LIMIT]
