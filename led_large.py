@@ -86,84 +86,100 @@ def preprocess_function(examples):
     inputs = tokenizer(
         examples["text"],
         max_length=max_input_length,
-        padding="max_length",
         truncation=True,
     )
     targets = tokenizer(
         examples["summary"],
         max_length=max_target_length,
-        padding="max_length",
         truncation=True,
     )
     inputs["labels"] = targets["input_ids"]
     return inputs
 
-# ✅ Map preprocessing
-train_dataset = train_dataset.map(preprocess_function, batched=True, remove_columns=["text", "summary"])
-val_dataset = val_dataset.map(preprocess_function, batched=True, remove_columns=["text", "summary"])
+# ✅ Map preprocessing - OPTIMIZED: parallel processing
+train_dataset = train_dataset.map(
+    preprocess_function, 
+    batched=True, 
+    remove_columns=["text", "summary"],
+    num_proc=6  # added parallel processing
+)
+val_dataset = val_dataset.map(
+    preprocess_function, 
+    batched=True, 
+    remove_columns=["text", "summary"],
+    num_proc=6 
+)
 
-# ✅ Dataloaders
+# ✅ Dataloaders - optimized through pin memory, prefetch
 data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, model=model)
-train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True, collate_fn=data_collator)
-val_loader = DataLoader(val_dataset, batch_size=1, collate_fn=data_collator)
+train_loader = DataLoader(
+    train_dataset, 
+    batch_size=32,  
+    shuffle=True, 
+    collate_fn=data_collator,
+    pin_memory=True,  
+    num_workers=6,  
+    prefetch_factor=2 
+)
+val_loader = DataLoader(
+    val_dataset, 
+    batch_size=1,  
+    collate_fn=data_collator,
+    pin_memory=True,  
+    num_workers=6,  
+    prefetch_factor=2
+)
 
 # ✅ Optimizer
 optimizer = AdamW(model.parameters(), lr=5e-5)
 
-# ✅ Training loop
-# epochs = 3
-# model.train()
+# Gradient scaler for mixed precision training with stability fixes
+scaler = torch.cuda.amp.GradScaler(init_scale=2.**10, growth_interval=2000)
 
-# for epoch in range(epochs):
-#     loop = tqdm(train_loader, leave=True)
-#     total_loss = 0
-
-#     for batch in loop:
-#         batch = {k: v.to(device) for k, v in batch.items()}
-#         outputs = model(**batch)
-#         loss = outputs.loss
-#         loss.backward()
-#         optimizer.step()
-#         optimizer.zero_grad()
-
-#         total_loss += loss.item()
-#         loop.set_description(f"Epoch {epoch + 1}")
-#         loop.set_postfix(loss=loss.item())
-
-#     avg_loss = total_loss / len(train_loader)
-#     print(f"Epoch {epoch + 1} finished. Avg loss: {avg_loss:.4f}")
-from torch.cuda.amp import autocast, GradScaler
-
-# ✅ Mixed precision scaler
-scaler = GradScaler()
-
+# ✅ Training loop optimized: mixed precision, gradient accumulation
 epochs = 3
+gradient_accumulation_steps = 4  
 model.train()
 
 for epoch in range(epochs):
     loop = tqdm(train_loader, leave=True)
     total_loss = 0
-
-    for batch in loop:
-        batch = {k: v.to(device) for k, v in batch.items()}
+    optimizer.zero_grad() 
+    
+    for step, batch in enumerate(loop):
+        batch = {k: v.to(device, non_blocking=True) for k, v in batch.items()}  
         
-        # Forward + backward with FP16 autocast
-        with autocast(dtype=torch.float16):
+        
+        with torch.cuda.amp.autocast(dtype=torch.bfloat16):
             outputs = model(**batch)
             loss = outputs.loss
-
-        # Scale loss to prevent underflow
+            loss = loss / gradient_accumulation_steps
+        
+        # Check for NaN loss
+        if torch.isnan(loss) or torch.isinf(loss):
+            print(f"⚠️ Warning: NaN/Inf loss detected at step {step}, skipping batch")
+            optimizer.zero_grad()
+            continue
+        
+        
         scaler.scale(loss).backward()
-        scaler.step(optimizer)
-        scaler.update()
-        optimizer.zero_grad()
-
-        total_loss += loss.item()
+        
+        
+        if (step + 1) % gradient_accumulation_steps == 0:
+            # Gradient clipping for stability
+            scaler.unscale_(optimizer)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+            
+            scaler.step(optimizer)
+            scaler.update()
+            optimizer.zero_grad()
+        
+        total_loss += loss.item() * gradient_accumulation_steps
         loop.set_description(f"Epoch {epoch + 1}")
-        loop.set_postfix(loss=loss.item())
-
+        loop.set_postfix(loss=loss.item() * gradient_accumulation_steps)
+    
     avg_loss = total_loss / len(train_loader)
-    print(f"✅ Epoch {epoch + 1} finished. Avg loss: {avg_loss:.4f}")
+    print(f"Epoch {epoch + 1} finished. Avg loss: {avg_loss:.4f}")
 
 
 
@@ -172,7 +188,7 @@ model.eval()
 
 from tqdm import tqdm
 
-def generate_in_batches(texts, batch_size=1, limit=300):
+def generate_in_batches(texts, batch_size=32, limit=300):
     preds = []
     texts = texts[:limit]
     for i in tqdm(range(0, len(texts), batch_size), desc="🔄 Generating summaries"):
@@ -215,6 +231,7 @@ from symspellpy.symspellpy import SymSpell, Verbosity
 import pkg_resources
 import nltk
 nltk.download("punkt_tab")
+
 
 # Initialize SymSpell
 sym_spell = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
@@ -318,7 +335,7 @@ for ref, pred in zip(refs, cleaned_preds):
 
 # ================== BERTScore ==================
 
-P, R, F1 = bert_score.score(cleaned_preds, refs, model_type="distilbert-base-uncased", batch_size=2, device="cuda", lang="en", verbose=False)
+P, R, F1 = bert_score.score(cleaned_preds, refs, model_type="distilbert-base-uncased", batch_size=1, device="cuda", lang="en", verbose=False)
 
 # ================== REPORT ==================
 print(f"❌ Total samples that failed readability: {readability_failures}")
