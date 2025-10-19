@@ -77,6 +77,7 @@ val_dataset = Dataset.from_pandas(val_df)
 model_name = "0-hero/led-large-legal-summary"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForSeq2SeqLM.from_pretrained(model_name).to(device)
+model.gradient_checkpointing_enable()
 
 # ✅ Preprocessing with padding/truncation
 max_input_length = 512
@@ -116,7 +117,7 @@ val_dataset = val_dataset.map(
 data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, model=model)
 train_loader = DataLoader(
     train_dataset, 
-    batch_size=32,  
+    batch_size=16,  
     shuffle=True, 
     collate_fn=data_collator,
     pin_memory=True,  # ADDED: faster data transfer to GPU
@@ -125,7 +126,7 @@ train_loader = DataLoader(
 )
 val_loader = DataLoader(
     val_dataset, 
-    batch_size=32,  
+    batch_size=1,  
     collate_fn=data_collator,
     pin_memory=True,  # ADDED: faster data transfer
     num_workers=6,  # ADDED: parallel data loading
@@ -152,7 +153,7 @@ for epoch in range(epochs):
         batch = {k: v.to(device, non_blocking=True) for k, v in batch.items()}  # CHANGED: non_blocking transfer
         
         # ADDED: Mixed precision training with autocast
-        with torch.cuda.amp.autocast(dtype=torch.bfloat16):
+        with torch.cuda.amp.autocast(dtype=torch.float16):
             outputs = model(**batch)
             loss = outputs.loss
             # CHANGED: Scale loss for gradient accumulation
@@ -192,7 +193,7 @@ model.eval()  # Set to eval mode
 torch.cuda.empty_cache()  # Clear memory fragmentation
 from tqdm import tqdm
 
-def generate_in_batches(texts, batch_size=16, limit=300):
+def generate_in_batches(texts, batch_size=4, limit=300):
     preds = []
     texts = texts[:limit]
     
