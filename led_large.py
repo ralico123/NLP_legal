@@ -12,6 +12,8 @@ end = time.time()
 time = end-start
 print(f"\n All dependencies installed in {time:.2f} seconds!")
 
+
+## Improved version
 import torch
 import numpy as np
 import textstat 
@@ -81,7 +83,7 @@ model.gradient_checkpointing_enable()
 
 # ✅ Preprocessing with padding/truncation
 max_input_length = 512
-max_target_length = 256
+max_target_length = 128
 
 def preprocess_function(examples):
     inputs = tokenizer(
@@ -104,13 +106,13 @@ train_dataset = train_dataset.map(
     preprocess_function, 
     batched=True, 
     remove_columns=["text", "summary"],
-    num_proc=6  # ADDED: parallel processing
+    num_proc=4  # ADDED: parallel processing
 )
 val_dataset = val_dataset.map(
     preprocess_function, 
     batched=True, 
     remove_columns=["text", "summary"],
-    num_proc=6  # ADDED: parallel processing
+    num_proc=4  # ADDED: parallel processing
 )
 
 # ✅ Dataloaders - OPTIMIZED: larger batch size, pin memory, prefetch
@@ -121,7 +123,7 @@ train_loader = DataLoader(
     shuffle=True, 
     collate_fn=data_collator,
     pin_memory=True,  # ADDED: faster data transfer to GPU
-    num_workers=6,  # ADDED: parallel data loading
+    num_workers=4,  # ADDED: parallel data loading
     prefetch_factor=2  # ADDED: prefetch batches
 )
 val_loader = DataLoader(
@@ -129,7 +131,7 @@ val_loader = DataLoader(
     batch_size=1,  
     collate_fn=data_collator,
     pin_memory=True,  # ADDED: faster data transfer
-    num_workers=6,  # ADDED: parallel data loading
+    num_workers=4,  # ADDED: parallel data loading
     prefetch_factor=2  # ADDED: prefetch batches
 )
 
@@ -187,13 +189,21 @@ for epoch in range(epochs):
 
 
 # ===== PREPARE MODEL FOR INFERENCE =====
-print("🔧 Preparing model for generation...")
+print("Preparing model for generation...")
 model.gradient_checkpointing_disable()  # Turn off checkpointing
 model.eval()  # Set to eval mode
-torch.cuda.empty_cache()  # Clear memory fragmentation
+del optimizer, scaler
+model.zero_grad(set_to_none=True)
+torch.cuda.empty_cache()
+gc.collect()
+if torch.cuda.is_available():
+    print(f"✅ GPU memory allocated: {torch.cuda.memory_allocated()/1e9:.2f} GB")
+    print(f"✅ GPU memory reserved: {torch.cuda.memory_reserved()/1e9:.2f} GB")
+print("Ready to start generation!")
+
 from tqdm import tqdm
 
-def generate_in_batches(texts, batch_size=4, limit=300):
+def generate_in_batches(texts, batch_size=16, limit=300):
     preds = []
     texts = texts[:limit]
     
