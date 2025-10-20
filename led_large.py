@@ -155,7 +155,7 @@ for epoch in range(epochs):
         batch = {k: v.to(device, non_blocking=True) for k, v in batch.items()}  # CHANGED: non_blocking transfer
         
         # ADDED: Mixed precision training with autocast
-        with torch.cuda.amp.autocast(dtype=torch.float16):
+        with torch.cuda.amp.autocast(dtype=torch.float16): #switch to bfloat on high-end GPUs to avoid NaN losses
             outputs = model(**batch)
             loss = outputs.loss
             # CHANGED: Scale loss for gradient accumulation
