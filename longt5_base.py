@@ -7,6 +7,7 @@ start = time.time()
 !pip install torch==2.2.2 transformers==4.39.3 accelerate==0.28.0 -q
 !pip install roman datasets textstat evaluate rouge-score bert_score --quiet
 !pip install git+https://github.com/PrimerAI/blanc.git --quiet
+!pip install hf_transfer
 !pip install symspellpy
 end = time.time()
 time = end-start
@@ -212,7 +213,7 @@ def generate_in_batches(texts, batch_size=16, limit=300):
     all_encodings = tokenizer(
         texts,
         return_tensors="pt",
-        padding=False,  # Don't pad yet
+        padding=True,
         truncation=True,
         max_length=max_input_length,
     )
